@@ -1,5 +1,7 @@
 package engine
 
+import "github.com/kalmeshbhavi/go-assignment/domain"
+
 type Engine interface {
 	GetKnight(ID string) (*domain.Knight, error)
 	ListKnights() []*domain.Knight

@@ -1,6 +1,9 @@
 package main
 
 import (
+	"github.com/kalmeshbhavi/go-assignment/adapters/http"
+	"github.com/kalmeshbhavi/go-assignment/engine"
+	"github.com/kalmeshbhavi/go-assignment/providers/database"
 	"os"
 	"os/signal"
 	"syscall"

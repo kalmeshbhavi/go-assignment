@@ -3,6 +3,7 @@ package engine
 import (
 	"errors"
 	"fmt"
+	"github.com/kalmeshbhavi/go-assignment/domain"
 )
 
 func (engine *arenaEngine) GetKnight(ID string) (*domain.Knight, error) {
