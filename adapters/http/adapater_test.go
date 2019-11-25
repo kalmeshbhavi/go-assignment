@@ -10,6 +10,8 @@ import (
 
 	"encoding/json"
 
+	"github.com/gorilla/mux"
+
 	"github.com/kalmeshbhavi/go-assignment/engine"
 	"github.com/kalmeshbhavi/go-assignment/providers/database"
 )
@@ -21,6 +23,7 @@ var (
 func TestMain(m *testing.M) {
 	provider := database.NewProvider()
 	// todo: init database (ex: create table, clear previous data, etc.)
+
 	e := engine.NewEngine(provider)
 
 	router = nil // todo: add your router
