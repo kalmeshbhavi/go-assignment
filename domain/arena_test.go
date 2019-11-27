@@ -1,6 +1,8 @@
 package domain
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestArena_Fight(t *testing.T) {
 	orc1 := &orc{"1", 10}

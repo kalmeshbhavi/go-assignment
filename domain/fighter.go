@@ -6,4 +6,8 @@ type Fighter interface {
 }
 
 type Knight struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Strength    int    `json:"strength"`
+	WeaponPower int    `json:"weapon_power"`
 }

@@ -4,14 +4,14 @@ import "github.com/kalmeshbhavi/go-assignment/domain"
 
 type Engine interface {
 	GetKnight(ID string) (*domain.Knight, error)
-	ListKnights() []*domain.Knight
-	Fight(fighter1ID string, fighter2ID string) domain.Fighter
+	ListKnights() ([]*domain.Knight, error)
+	CreateKnight(*domain.Knight) (int64, error)
 }
 
 type KnightRepository interface {
 	Find(ID string) *domain.Knight
-	FindAll() []*domain.Knight
-	Save(knight *domain.Knight)
+	FindAll() ([]*domain.Knight, error)
+	Save(knight *domain.Knight) (int64, error)
 }
 
 type DatabaseProvider interface {

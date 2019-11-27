@@ -2,11 +2,9 @@ package http
 
 import (
 	"net/http"
-
-	adapter "github.com/kalmeshbhavi/go-assignment/adapters/middleware"
 )
 
-func responseServerAdapter() adapter.ServerAdapter {
+func responseServerAdapter() ServerAdapter {
 	return func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 

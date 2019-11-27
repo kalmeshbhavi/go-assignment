@@ -1,6 +1,7 @@
 package http
 
 import (
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -17,18 +18,30 @@ import (
 )
 
 var (
-	router http.Handler
+	router mux.Router
 )
 
 func TestMain(m *testing.M) {
 	provider := database.NewProvider()
+
+	EnsureTableExists(provider)
 	// todo: init database (ex: create table, clear previous data, etc.)
 
 	e := engine.NewEngine(provider)
 
-	router = nil // todo: add your router
+	router = *mux.NewRouter()
+
+	httpAdapter := NewHTTPAdapter(e)
+	adapters := getServerAdapters()
+
+	router.Handle("/knight", httpAdapter.ServerApply(httpAdapter.getAll(), adapters...)).Methods("GET")
+	router.Handle("/knight", httpAdapter.ServerApply(httpAdapter.create(), adapters...)).Methods("POST")
+	router.Handle("/knight/{id}", httpAdapter.ServerApply(httpAdapter.get(), adapters...)).Methods("GET")
+
+	httptest.NewServer(&router)
 
 	code := m.Run()
+	clearTable(provider)
 	provider.Close()
 	os.Exit(code)
 }
@@ -178,6 +191,28 @@ func TestGetKnightNotFound(t *testing.T) {
 	}
 
 	if response["message"].(string) != "Knight #123456789 not found." {
+		log.Println(response["message"])
+
 		t.Fatal("Response error: Expected error message 'Knight #123456789 not found.'")
 	}
+}
+
+const tableCreationQuery = `CREATE TABLE IF NOT EXISTS knights
+(
+    id SERIAL,
+    name TEXT NOT NULL,
+    strength int NOT NULL default 1,
+    weapon_power int NOT NULL default 0,
+    CONSTRAINT knights_pkey PRIMARY KEY (id)
+)`
+
+func EnsureTableExists(provider *database.Provider) {
+	if _, err := provider.DB.Exec(tableCreationQuery); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func clearTable(provider *database.Provider) {
+	provider.DB.Exec("DELETE FROM knights")
+	provider.DB.Exec("ALTER SEQUENCE knights_id_seq RESTART WITH 1")
 }

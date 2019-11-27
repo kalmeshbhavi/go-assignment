@@ -3,56 +3,85 @@ package http
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/pkg/errors"
 
 	"github.com/kalmeshbhavi/go-assignment/domain"
-	"github.com/kalmeshbhavi/go-assignment/errors"
 )
 
-func (s *HTTPAdapter) get() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		resp := ToResponse(w)
-
+func (adapter *HTTPAdapter) get() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		idStr := vars["id"]
 
-		path, serr := s.engine.GetKnight(idStr)
-		if serr != nil {
-			resp.SetError(errors.New(errors.NotFound, serr))
+		knight, err := adapter.engine.GetKnight(idStr)
+		if err != nil {
+			respondWithError(w, http.StatusNotFound, err.Error())
 			return
 		}
 
-		resp.SetResponse(path)
-	})
+		respondWithJSON(w, http.StatusOK, knight)
+	}
 }
 
-func (s *HTTPAdapter) getAll() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		resp := ToResponse(w)
-		knights := s.engine.ListKnights()
-		resp.SetResponse(knights)
-	})
+func (adapter *HTTPAdapter) getAll() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		knights, err := adapter.engine.ListKnights()
+		if err != nil {
+			respondWithError(w, http.StatusNotFound, err.Error())
+			return
+		}
+		respondWithJSON(w, http.StatusOK, knights)
+	}
 }
 
-func (s *HTTPAdapter) create() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		resp := ToResponse(w)
+func (adapter *HTTPAdapter) create() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 
 		defer r.Body.Close()
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			log.Fatal(err)
-		}
-
-		var sd domain.Knight
-		err = json.Unmarshal(body, &sd)
-		if err != nil {
-			resp.SetError(errors.New(errors.NotFound, err))
+			respondWithError(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
-	})
+		var knight domain.Knight
+		err = json.Unmarshal(body, &knight)
+		if err != nil {
+			respondWithError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		err = validateRequest(knight)
+		if err != nil {
+			respondWithError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		id, err := adapter.engine.CreateKnight(&knight)
+		if err != nil {
+			respondWithError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		res := struct {
+			ID string `json:"id"`
+		}{ID: strconv.Itoa(int(id))}
+		respondWithJSON(w, http.StatusCreated, res)
+	}
+}
+
+func validateRequest(knight domain.Knight) error {
+	if knight.WeaponPower == 0 {
+		return errors.New("Invalid request")
+	}
+
+	if knight.Strength == 0 {
+		return errors.New("Invalid request")
+	}
+	if knight.Name == "" {
+		return errors.New("Invalid request")
+	}
+	return nil
 }

@@ -29,15 +29,17 @@ func errCodeIs(errCode Code, codes ...Code) bool {
 	return false
 }
 
-func GetHttpStatusAndCode(err ServiceError) (httpStatus int, errCodeStr string) {
-	errCode := err.GetCode()
+func GetHttpStatusAndCode(err error) (httpStatus int, errCodeStr string) {
+	/*errCode := err.GetCode()
 	errCodeStr = errCode.ErrorCode()
 
 	errMap := errorMap()
 	httpStatus, ok := errMap[errCode]
 	if !ok {
 		httpStatus = http.StatusInternalServerError
-	}
+	}*/
+	errCodeStr = err.Error()
+	httpStatus = http.StatusBadRequest
 
 	return
 }

@@ -3,6 +3,7 @@ package http
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/kalmeshbhavi/go-assignment/errors"
 )
@@ -106,4 +107,16 @@ func (r *response) Write(b []byte) (n int, err error) {
 		r.WriteHeader(http.StatusOK)
 	}
 	return r.ResponseWriter.Write(b)
+}
+
+func respondWithError(w http.ResponseWriter, code int, message string) {
+	respondWithJSON(w, code, map[string]string{"code": strconv.Itoa(code), "message": message})
+}
+
+func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
+	response, _ := json.Marshal(payload)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	w.Write(response)
 }
