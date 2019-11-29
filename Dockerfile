@@ -4,6 +4,8 @@ FROM golang as builder
 ENV GO111MODULE=on
 WORKDIR /app
 
+ADD . .
+
 COPY go.mod .
 COPY go.sum .
 

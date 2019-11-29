@@ -22,7 +22,9 @@ var (
 )
 
 func TestMain(m *testing.M) {
-	provider := database.NewProvider()
+	//configs := config.GetConfigs()
+	connString := database.GetConnectionString()
+	provider := database.NewProvider(connString)
 
 	EnsureTableExists(provider)
 	// todo: init database (ex: create table, clear previous data, etc.)

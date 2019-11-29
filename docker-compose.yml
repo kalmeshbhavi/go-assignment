@@ -3,23 +3,42 @@ services:
   app:
     container_name: go-assignment
     build: .
+    command: ./go-assignment
     ports:
-      - 8081:8081
+      - 8081:8080
     restart: on-failure
 #    volumes:
 #      - api:/usr/src/app
-    depends_on:
+    environment:
+      MYSQL_DB_HOST: database
+      MYSQL_DB: test_db
+      MYSQL_PORT: 3306
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+    links:
       - database
-
+    networks:
+      - botnet
 
   database:
     container_name: sql_db
     image: "mysql"
+    ports:
+      - 3308:3306
+    restart: on-failure
     environment:
-      - MYSQL_ROOT_HOST=${DB_HOST}
-      - MYSQL_USER=${DB_USER}
-      - MYSQL_PASSWORD=${DB_PASSWORD}
-      - MYSQL_DATABASE=${DB_NAME}
-      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: test_db
+      MYSQL_USER: root
+      MYSQL_PASSWORD: Welcome123
 #    volumes:
 #      - database_mysql:/var/lib/mysql
+    networks:
+      - botnet
+
+volumes:
+  mysql_data:
+
+networks:
+  botnet:
+    driver: bridge

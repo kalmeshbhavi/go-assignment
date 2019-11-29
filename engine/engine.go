@@ -9,7 +9,7 @@ type Engine interface {
 }
 
 type KnightRepository interface {
-	Find(ID string) *domain.Knight
+	Find(ID string) (*domain.Knight, error)
 	FindAll() ([]*domain.Knight, error)
 	Save(knight *domain.Knight) (int64, error)
 }

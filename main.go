@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -10,8 +11,28 @@ import (
 	"github.com/kalmeshbhavi/go-assignment/providers/database"
 )
 
+const tableCreationQuery = `CREATE TABLE IF NOT EXISTS knights
+(
+    id SERIAL,
+    name TEXT NOT NULL,
+    strength int NOT NULL default 1,
+    weapon_power int NOT NULL default 0,
+    CONSTRAINT knights_pkey PRIMARY KEY (id)
+)`
+
+func EnsureTableExists(provider *database.Provider) {
+	if _, err := provider.DB.Exec(tableCreationQuery); err != nil {
+		log.Fatal(err)
+	}
+}
+
 func main() {
-	provider := database.NewProvider()
+
+	//configs := config.GetConfigs()
+
+	connString := database.GetConnectionString()
+	provider := database.NewProvider(connString)
+	EnsureTableExists(provider)
 
 	e := engine.NewEngine(provider)
 
