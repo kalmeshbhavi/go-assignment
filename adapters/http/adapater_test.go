@@ -1,6 +1,7 @@
 package http
 
 import (
+	"github.com/kalmeshbhavi/go-assignment/config"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -22,8 +23,8 @@ var (
 )
 
 func TestMain(m *testing.M) {
-	//configs := config.GetConfigs()
-	connString := database.GetConnectionString()
+	config := config.GetConfigs()
+	connString := database.GetConnectionString(config)
 	provider := database.NewProvider(connString)
 
 	EnsureTableExists(provider)

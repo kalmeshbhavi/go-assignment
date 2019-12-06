@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/kalmeshbhavi/go-assignment/config"
 	"log"
 	"os"
 	"os/signal"
@@ -27,10 +28,8 @@ func EnsureTableExists(provider *database.Provider) {
 }
 
 func main() {
-
-	//configs := config.GetConfigs()
-
-	connString := database.GetConnectionString()
+	config := config.GetConfigs()
+	connString := database.GetConnectionString(config)
 	provider := database.NewProvider(connString)
 	EnsureTableExists(provider)
 

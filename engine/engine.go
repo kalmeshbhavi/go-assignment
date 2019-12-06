@@ -1,6 +1,9 @@
 package engine
 
-import "github.com/kalmeshbhavi/go-assignment/domain"
+import (
+	"github.com/kalmeshbhavi/go-assignment/domain"
+	"github.com/kalmeshbhavi/go-assignment/providers/database"
+)
 
 type Engine interface {
 	GetKnight(ID string) (*domain.Knight, error)
@@ -8,22 +11,12 @@ type Engine interface {
 	CreateKnight(*domain.Knight) (int64, error)
 }
 
-type KnightRepository interface {
-	Find(ID string) (*domain.Knight, error)
-	FindAll() ([]*domain.Knight, error)
-	Save(knight *domain.Knight) (int64, error)
-}
-
-type DatabaseProvider interface {
-	GetKnightRepository() KnightRepository
-}
-
 type arenaEngine struct {
 	arena            *domain.Arena
-	knightRepository KnightRepository
+	knightRepository database.KnightRepository
 }
 
-func NewEngine(db DatabaseProvider) Engine {
+func NewEngine(db database.DatabaseProvider) Engine {
 	return &arenaEngine{
 		arena:            &domain.Arena{},
 		knightRepository: db.GetKnightRepository(),

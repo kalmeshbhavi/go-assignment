@@ -7,8 +7,6 @@ import (
 	"github.com/kalmeshbhavi/go-assignment/errors"
 )
 
-var knights []domain.Knight
-
 func (engine *arenaEngine) GetKnight(ID string) (*domain.Knight, error) {
 	const op errors.Op = "engine.GetKnight"
 	fighter, err := engine.knightRepository.Find(ID)
@@ -25,6 +23,7 @@ func (engine *arenaEngine) ListKnights() ([]*domain.Knight, error) {
 	if err != nil {
 		return nil, errors.E(op, err, "No records found.")
 	}
+
 	return knights, nil
 }
 
@@ -35,5 +34,6 @@ func (engine *arenaEngine) CreateKnight(knight *domain.Knight) (int64, error) {
 	if err != nil {
 		return 0, errors.E(op, err, "Unable to create knight")
 	}
+
 	return id, nil
 }

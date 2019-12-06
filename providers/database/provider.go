@@ -3,34 +3,33 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"github.com/kalmeshbhavi/go-assignment/config"
 	"log"
-	"os"
 	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
-
-	"github.com/kalmeshbhavi/go-assignment/engine"
 )
+
+type DatabaseProvider interface {
+	GetKnightRepository() KnightRepository
+}
 
 type Provider struct {
 	DB *sql.DB
 }
 
-func (provider *Provider) GetKnightRepository() engine.KnightRepository {
+func (provider *Provider) GetKnightRepository() KnightRepository {
 	return &knightRepository{provider: provider}
 }
 
 func (provider *Provider) Close() {
-	provider.DB.Close()
+	err := provider.DB.Close()
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func NewProvider(connString string) *Provider {
-	// root:Welcome123@tcp(localhost:3306)/inventory?parseTime=true"
-	//connectionString :=
-	//	fmt.Sprintf("user=%s password=%s dbname=%s", "root", "Welcome123", "test")
-
-	var err error
-	//db, err := sql.Open("mysql", "root:Welcome123@tcp(localhost:3306)/inventory")
 	log.Printf("connection string : %s", connString)
 	db, err := sql.Open("mysql", connString)
 	if err != nil {
@@ -40,29 +39,13 @@ func NewProvider(connString string) *Provider {
 	return &Provider{DB: db}
 }
 
-func GetConnectionString() string {
-	host := getParamString("MYSQL_DB_HOST", "172.0.0.1")
-	port := getParamString("MYSQL_PORT", "3306")
-	user := getParamString("MYSQL_USER", "root")
-	pass := getParamString("MYSQL_PASSWORD", "")
-	dbname := getParamString("MYSQL_DB", "test_db")
-	protocol := getParamString("MYSQL_PROTOCOL", "tcp")
-	dbargs := getParamString("MYSQL_DBARGS", " ")
+func GetConnectionString(config *config.Config) string {
 
-	if strings.Trim(dbargs, " ") != "" {
-		dbargs = "?" + dbargs
+	if strings.Trim(config.DbArgs, " ") != "" {
+		config.DbArgs = "?" + config.DbArgs
 	} else {
-		dbargs = ""
+		config.DbArgs = ""
 	}
 	return fmt.Sprintf("%s:%s@%s([%s]:%s)/%s%s",
-		user, pass, protocol, host, port, dbname, dbargs)
-}
-
-func getParamString(param string, defaultValue string) string {
-	env := os.Getenv(param)
-	log.Printf("param= %s value= %s, deafultvalue= %s", param, env, defaultValue)
-	if env != "" {
-		return env
-	}
-	return defaultValue
+		config.User, config.Pass, config.Protocol, config.Host, config.Pass, config.DbName, config.DbArgs)
 }
